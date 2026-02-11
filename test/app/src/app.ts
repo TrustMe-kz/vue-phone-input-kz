@@ -1,7 +1,6 @@
 import { createApp } from 'vue';
-import router from '@/router';
 import App from './App.vue';
-import 'vue-sonner/style.css';
+import '@phone-input-kz/vue-phone-input-kz.css';
 import './app.css';
 
-createApp(App).use(router).mount('#app');
+createApp(App).mount('#app');
