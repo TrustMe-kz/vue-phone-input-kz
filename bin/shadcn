@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Collecting all the passed arguments
+
+ARGS="$@"
+
+
+# Running the shadcn
+
+bunx --bun shadcn-vue@latest $ARGS

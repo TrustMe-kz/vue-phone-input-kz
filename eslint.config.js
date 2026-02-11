@@ -6,7 +6,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: [ 'dist/**' ],
+    ignores: [ 'dist/**', 'src/shadcn/**' ],
     files: [ '**/*.{js,ts,vue}' ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -65,7 +65,7 @@ export default [
     },
     rules: {
       ...vue.configs['flat/recommended'].rules,
-
+      'no-useless-assignment': 'off',
       'vue/no-v-html': 'off',
       'vue/order-in-components': 'off',
       'vue/attributes-order': 'off',
