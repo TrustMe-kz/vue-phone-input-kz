@@ -59,6 +59,7 @@ const props = defineProps<{
 
   disabled?: boolean|null,
   fetch?: boolean|null,
+  noFlags?: boolean|null,
 }>();
 
 
@@ -107,14 +108,9 @@ const country = computed<string|null>({
       auto-detect-country-from-prefix
   >
     <template #selector="{ inputValue, updateInputValue, countries }">
-      <slot
-          name="popover"
-          :country="inputValue"
-          :countries="countries"
-          :setCountry="updateInputValue"
-      >
+      <slot name="countrySelect">
         <Popover v-model:open="isPopoverShown">
-          <PopoverTrigger>
+          <PopoverTrigger as-child>
             <Button
                 variant="outline"
                 class="flex gap-1 rounded-e-none rounded-s-lg px-3"
@@ -125,54 +121,65 @@ const country = computed<string|null>({
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent class="w-86 p-0">
-            <Command>
-              <CommandInput
-                  :placeholder="props.translations.searchCountry ?? DEFAULT_TRANSLATIONS.searchCountry"
-                  :disabled="!!props.disabled"
-              />
+          <slot
+              name="popover"
+              :country="inputValue"
+              :countries="countries"
+              :setCountry="updateInputValue"
+          >
+            <PopoverContent class="phone_input_kz_popover w-86 p-0 bg-white">
+              <Command>
+                <CommandInput
+                    :placeholder="props.translations?.searchCountry ?? DEFAULT_TRANSLATIONS.searchCountry"
+                    :disabled="!!props.disabled"
+                />
 
-              <CommandEmpty>
-                {{ props.translations.noCountryFound ?? DEFAULT_TRANSLATIONS.noCountryFound }}
-              </CommandEmpty>
+                <CommandEmpty>
+                  {{ props.translations?.noCountryFound ?? DEFAULT_TRANSLATIONS.noCountryFound }}
+                </CommandEmpty>
 
-              <CommandList>
-                <CommandGroup>
-                  <CommandItem
-                      v-for="country in countries"
-                      :key="country.iso2"
-                      :value="country.name"
-                      class="gap-2"
-                      :disabled="!!props.disabled"
-                      @select="() => {
-                        if (props.disabled) return;
+                <CommandList>
+                  <CommandGroup>
+                    <CommandItem
+                        v-for="country in countries"
+                        :key="country.iso2"
+                        :value="country.name"
+                        :class="props.noFlags ? 'gap-1' : 'gap-2'"
+                        :disabled="!!props.disabled"
+                        @select="() => {
+                          if (props.disabled) return;
 
-                        updateInputValue(country?.iso2 || '--');
+                          updateInputValue(country?.iso2 || '--');
 
-                        isPopoverShown = false;
-                        focused = true;
-                      }"
-                  >
-                    <Flag :country="country?.iso2" />
+                          isPopoverShown = false;
+                          focused = true;
+                        }"
+                    >
+                      <Flag
+                          v-if="!props.noFlags"
+                          :country="country?.iso2"
+                      />
 
-                    <span class="flex-1 text-sm">
-                      {{ country?.name ?? 'Unknown Country' }}
-                    </span>
+                      <span class="flex-1 text-sm">
+                        {{ country?.name ?? 'Unknown Country' }}
+                      </span>
 
-                    <span class="text-foreground/50 text-sm">
-                      {{ country?.dialCode || '' }}
-                    </span>
-                  </CommandItem>
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
+                      <span class="text-foreground/50 text-sm">
+                        {{ country?.dialCode || '' }}
+                      </span>
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </slot>
         </Popover>
       </slot>
     </template>
 
     <template #input="{ inputValue, updateInputValue, placeholder }">
       <slot
+          name="input"
           :val="inputValue"
           :hint="props.hint ?? placeholder"
           :set="updateInputValue"

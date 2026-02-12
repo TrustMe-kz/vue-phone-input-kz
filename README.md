@@ -76,6 +76,7 @@ import 'vue-phone-input-kz/index.css';
 | `fetch` | `boolean \| null` | `false` | Enables country fetch mode in base engine |
 | `hint` | `string \| null` | `null` | Custom input placeholder (fallbacks to base placeholder) |
 | `disabled` | `boolean \| null` | `false` | Disables input and country selector with disabled styles |
+| `showFlagsInPopover` | `boolean \| null` | `true` | Enables/disables rendering country flags inside the popover list |
 | `translations` | `{ searchCountry?: string; noCountryFound?: string } \| null` | `null` | UI text overrides for country search/empty state (fallback to English) |
 | `class` | `HTMLAttributes['class'] \| null` | `null` | Extra classes for component root |
 
@@ -115,6 +116,7 @@ Localization example:
 <PhoneInputKz
   v-model="phone"
   hint="Номер телефона"
+  :show-flags-in-popover="false"
   :translations="{
     searchCountry: 'Поиск страны...',
     noCountryFound: 'Страна не найдена.'
@@ -124,10 +126,10 @@ Localization example:
 
 ## Slots
 
-| Slot      | Bindings                             | Description                                  |
-|-----------|--------------------------------------|----------------------------------------------|
-| `popover` | `{ country, countries, setCountry }` | Override default country selector popover UI |
-| `default` | `{ val, hint, set }`                 | Override default input                       |
+| Slot              | Bindings                             | Description                                  |
+|-------------------|--------------------------------------|----------------------------------------------|
+| `countrySelector` | `{ country, countries, setCountry }` | Override default country selector popover UI |
+| `input`           | `{ val, hint, set }`                 | Override default input                       |
 
 ## Development
 
