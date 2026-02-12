@@ -144,14 +144,20 @@ const country = computed<string|null>({
     </template>
 
     <template #input="{ inputValue, updateInputValue, placeholder }">
-      <Input
-          class="rounded-e-lg rounded-s-none"
-          type="text"
-          :model-value="inputValue"
-          :placeholder="placeholder"
-          @input="updateInputValue"
-          ref="inputEl"
-      />
+      <slot
+          :val="inputValue"
+          :hint="placeholder"
+          :set="updateInputValue"
+      >
+        <Input
+            class="rounded-e-lg rounded-s-none"
+            type="text"
+            :model-value="inputValue"
+            :placeholder="placeholder"
+            @input="updateInputValue"
+            ref="inputEl"
+        />
+      </slot>
     </template>
   </PhoneInput>
 </template>
