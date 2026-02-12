@@ -45,12 +45,18 @@ const meta = ref<Record<string, unknown> | null>(null);
 1. Install **dependencies**:
 
 ```shell
-npm i vue-phone-input-kz tailwindcss shadcn
+npm i vue-phone-input-kz
 ```
 
-`vue-phone-input-kz` uses **shadcn** primitives internally, so `shadcn` is required for stable rendering and behavior in host apps.
+2. If your app does not have **shadcn/vue** configured yet, follow [the official setup guide (https://www.shadcn-vue.com/docs/installation)](https://www.shadcn-vue.com/docs/installation)  
 
-2. Import **Component & CSS**:
+```bash
+npx shadcn-vue@latest init
+```
+
+> 💡 **Minimal checklist:** install _Tailwind v4_, set up `@/*` aliases in your project, update your build config, then continue.
+
+3. Import **component and styles**:
 
 ```ts
 import PhoneInputKz from 'vue-phone-input-kz';
