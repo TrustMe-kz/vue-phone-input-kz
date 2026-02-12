@@ -74,6 +74,9 @@ import 'vue-phone-input-kz/index.css';
 | `exclude` | `string[] \| null` | `['AC']` | Countries excluded from selector |
 | `format` | `'international' \| 'national' \| null` | `'international'` | Final display format for valid numbers |
 | `fetch` | `boolean \| null` | `false` | Enables country fetch mode in base engine |
+| `hint` | `string \| null` | `null` | Custom input placeholder (fallbacks to base placeholder) |
+| `disabled` | `boolean \| null` | `false` | Disables input and country selector with disabled styles |
+| `translations` | `{ searchCountry?: string; noCountryFound?: string } \| null` | `null` | UI text overrides for country search/empty state (fallback to English) |
 | `class` | `HTMLAttributes['class'] \| null` | `null` | Extra classes for component root |
 
 ### Events
@@ -103,6 +106,19 @@ Example:
   v-model="phone"
   @update="(result) => console.log(result.e164, result.isValid)"
   auto-format
+/>
+```
+
+Localization example:
+
+```vue
+<PhoneInputKz
+  v-model="phone"
+  hint="Номер телефона"
+  :translations="{
+    searchCountry: 'Поиск страны...',
+    noCountryFound: 'Страна не найдена.'
+  }"
 />
 ```
 

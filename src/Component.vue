@@ -16,12 +16,22 @@ import Flag from './Flag.vue';
 
 type Format = 'international' | 'national';
 
+type Translations = {
+  searchCountry?: string|null,
+  noCountryFound?: string|null,
+};
+
 
 // Constants
 
 const DEFAULT_EXCLUDE = [ 'AC' ];
 
 const DEFAULT_FORMAT: Format = 'international';
+
+const DEFAULT_TRANSLATIONS: Required<Translations> = {
+  searchCountry: 'Search country...',
+  noCountryFound: 'No country found.',
+};
 
 
 // Defining the emits
@@ -41,9 +51,13 @@ const props = defineProps<{
 
   country?: string|null,
   exclude?: string[] | null,
+
+  hint?: string|null,
   format?: Format | null,
   modelValue?: string|null,
+  translations?: Translations | null,
 
+  disabled?: boolean|null,
   fetch?: boolean|null,
 }>();
 
@@ -87,6 +101,8 @@ const country = computed<string|null>({
       :phone-number-display-format="props.format ?? DEFAULT_FORMAT"
       :fetchCountry="!!props.fetch"
       :noUseBrowserLocale="!!props.fetch"
+      :disabled="!!props.disabled"
+      :data-disabled="Number(props.disabled)"
       v-model="val"
       auto-detect-country-from-prefix
   >
@@ -102,6 +118,7 @@ const country = computed<string|null>({
             <Button
                 variant="outline"
                 class="flex gap-1 rounded-e-none rounded-s-lg px-3"
+                :disabled="!!props.disabled"
             >
               <Flag :country="inputValue" />
               <ChevronsUpDown class="-mr-2 h-4 w-4 opacity-50" />
@@ -110,8 +127,15 @@ const country = computed<string|null>({
 
           <PopoverContent class="w-86 p-0">
             <Command>
-              <CommandInput placeholder="Search country..." />
-              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandInput
+                  :placeholder="props.translations.searchCountry ?? DEFAULT_TRANSLATIONS.searchCountry"
+                  :disabled="!!props.disabled"
+              />
+
+              <CommandEmpty>
+                {{ props.translations.noCountryFound ?? DEFAULT_TRANSLATIONS.noCountryFound }}
+              </CommandEmpty>
+
               <CommandList>
                 <CommandGroup>
                   <CommandItem
@@ -119,21 +143,25 @@ const country = computed<string|null>({
                       :key="country.iso2"
                       :value="country.name"
                       class="gap-2"
+                      :disabled="!!props.disabled"
                       @select="() => {
-                      updateInputValue(country.iso2);
-                      isPopoverShown = false;
-                      focused = true;
-                    }"
+                        if (props.disabled) return;
+
+                        updateInputValue(country?.iso2 || '--');
+
+                        isPopoverShown = false;
+                        focused = true;
+                      }"
                   >
                     <Flag :country="country?.iso2" />
 
                     <span class="flex-1 text-sm">
-                    {{ country.name }}
-                  </span>
+                      {{ country?.name ?? 'Unknown Country' }}
+                    </span>
 
                     <span class="text-foreground/50 text-sm">
-                    {{ country.dialCode }}
-                  </span>
+                      {{ country?.dialCode || '' }}
+                    </span>
                   </CommandItem>
                 </CommandGroup>
               </CommandList>
@@ -146,14 +174,15 @@ const country = computed<string|null>({
     <template #input="{ inputValue, updateInputValue, placeholder }">
       <slot
           :val="inputValue"
-          :hint="placeholder"
+          :hint="props.hint ?? placeholder"
           :set="updateInputValue"
       >
         <Input
             class="rounded-e-lg rounded-s-none"
             type="text"
             :model-value="inputValue"
-            :placeholder="placeholder"
+            :placeholder="props.hint ?? placeholder"
+            :disabled="!!props.disabled"
             @input="updateInputValue"
             ref="inputEl"
         />
@@ -161,3 +190,13 @@ const country = computed<string|null>({
     </template>
   </PhoneInput>
 </template>
+
+<style scoped>
+
+.phone_input_kz {
+  &[data-disabled="1"] {
+    opacity: 0.75;
+  }
+}
+
+</style>
