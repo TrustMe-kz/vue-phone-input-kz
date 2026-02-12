@@ -2,13 +2,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@phone-input-kz/*": ["../../dist/*"]
+      "@/*": [ "src/*" ],
+      "@phone-input-kz/index.ts": [ "../../dist/index.es" ],
+      "@phone-input-kz/*": [ "../../dist/*" ]
     },
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020", "DOM"],
-    "types": ["node"],
+    "lib": [ "ES2020", "DOM" ],
+    "types": [ "node" ],
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
     "strict": true,
@@ -19,5 +20,10 @@
     "jsx": "preserve",
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "vite.config.ts",
+  ]
 }
