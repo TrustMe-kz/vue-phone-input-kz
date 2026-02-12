@@ -8,13 +8,20 @@ import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shadcn/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/shadcn/components/ui/command';
-import PhoneInput from 'base-vue-phone-input';
+import PhoneInput from 'vue-phone-input-base';
 import Flag from './Flag.vue';
+
+
+// Types
+
+type Format = 'international' | 'national';
 
 
 // Constants
 
 const DEFAULT_EXCLUDE = [ 'AC' ];
+
+const DEFAULT_FORMAT: Format = 'international';
 
 
 // Defining the emits
@@ -34,6 +41,7 @@ const props = defineProps<{
 
   country?: string|null,
   exclude?: string[] | null,
+  format?: Format | null,
   modelValue?: string|null,
 
   fetch?: boolean|null,
@@ -76,9 +84,11 @@ const country = computed<string|null>({
       :class="cn([ 'phone_input_kz flex', props.class ])"
       :country-locale="country"
       :ignored-countries="exclude ?? DEFAULT_EXCLUDE"
+      :phone-number-display-format="props.format ?? DEFAULT_FORMAT"
       :fetchCountry="!!props.fetch"
       :noUseBrowserLocale="!!props.fetch"
       v-model="val"
+      auto-detect-country-from-prefix
   >
     <template #selector="{ inputValue, updateInputValue, countries }">
       <slot
