@@ -70,6 +70,7 @@ const normalizedE164 = computed(() => {
           id="phone-input"
           v-model="phone"
           v-model:country="countryCode"
+          country-code="KZ"
           :auto-format="autoFormat"
           :no-formatting-as-you-type="noFormattingAsYouType"
           @update="updateMeta"

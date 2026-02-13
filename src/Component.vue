@@ -97,11 +97,11 @@ const country = computed<string|null>({
 <template>
   <PhoneInput
       :class="cn([ 'phone_input_kz flex', props.class ])"
-      :country-locale="country"
+      :country-code="country"
       :ignored-countries="exclude ?? DEFAULT_EXCLUDE"
       :phone-number-display-format="props.format ?? DEFAULT_FORMAT"
-      :fetchCountry="!!props.fetch"
-      :noUseBrowserLocale="!!props.fetch"
+      :fetch-country="!!props.fetch"
+      :no-use-browser-locale="!!props.fetch"
       :disabled="!!props.disabled"
       :data-disabled="Number(props.disabled)"
       v-model="val"
