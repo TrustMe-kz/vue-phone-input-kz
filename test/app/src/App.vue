@@ -7,7 +7,7 @@ import PhoneInputKz from '@phone-input-kz/index.ts';
 // Variables
 
 const phone = ref('');
-const countryCode = ref<string | null>(null);
+const countryCode = ref<string | null>('KZ');
 const autoFormat = ref(true);
 const noFormattingAsYouType = ref(false);
 const meta = ref<Record<string, unknown> | null>(null);
@@ -31,7 +31,7 @@ function applyPreset(value: string): void {
 
 function resetDemo(): void {
   phone.value = '';
-  countryCode.value = null;
+  countryCode.value = 'KZ';
   meta.value = null;
 }
 
@@ -70,7 +70,7 @@ const normalizedE164 = computed(() => {
           id="phone-input"
           v-model="phone"
           v-model:country="countryCode"
-          country-code="KZ"
+          locale="ru-RU"
           :auto-format="autoFormat"
           :no-formatting-as-you-type="noFormattingAsYouType"
           @update="updateMeta"

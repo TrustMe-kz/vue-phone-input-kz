@@ -53,6 +53,7 @@ const props = defineProps<{
   exclude?: string[] | null,
 
   hint?: string|null,
+  locale?: string|null,
   format?: Format | null,
   modelValue?: string|null,
   translations?: Translations | null,
@@ -100,6 +101,7 @@ const country = computed<string|null>({
       :country-code="country"
       :ignored-countries="exclude ?? DEFAULT_EXCLUDE"
       :phone-number-display-format="props.format ?? DEFAULT_FORMAT"
+      :country-locale="props.locale"
       :fetch-country="!!props.fetch"
       :no-use-browser-locale="!!props.fetch"
       :disabled="!!props.disabled"
