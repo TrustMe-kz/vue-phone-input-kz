@@ -19,6 +19,7 @@ const presets = [
   { label: 'KZ mobile (8...)', value: '87761234567' },
   { label: 'KZ mobile (7...)', value: '77761234567' },
   { label: 'KZ mobile (+7...)', value: '+77761234567' },
+  { label: 'Switch country demo', value: '+77767211181' },
   { label: 'Noisy invalid input', value: 'abc!!!' },
 ];
 

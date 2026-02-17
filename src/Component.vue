@@ -24,6 +24,11 @@ type Translations = {
   noCountryFound?: string|null,
 };
 
+type CountryOption = {
+  iso2?: string | null,
+  dialCode?: string | null,
+};
+
 
 // Constants
 
@@ -76,6 +81,7 @@ const props = defineProps<{
 const attrs = useAttrs();
 
 const inputEl = ref(null);
+const basePhoneUpdateHandler = ref<BasePhoneInputUpdateHandler | null>(null);
 
 const { focused } = useFocus(inputEl);
 
@@ -104,6 +110,53 @@ function syncInputTargetValue(_eventOrValue: Event | string, _nextValue: string)
 
 function resolveDisplayValue(_normalizedInput: string): string {
   return _normalizedInput;
+}
+
+function normalizeDialCode(_dialCode: string | null | undefined): string {
+  return String(_dialCode ?? '').replace(/\D+/g, '');
+}
+
+function findCountryOptionByIso2(_countries: CountryOption[], _iso2: string | null): CountryOption | null {
+  if (!_iso2) return null;
+
+  const target = String(_iso2).toLowerCase();
+  return _countries.find(country => String(country?.iso2 ?? '').toLowerCase() === target) ?? null;
+}
+
+function rebuildPhoneValueForCountrySwitch(_countries: CountryOption[], _nextCountry: string | null): string | null {
+  // Doing some checks
+  if (!_nextCountry) return null;
+
+  const currentValue = state.value?.modelValue ?? '';
+  const currentDigits = currentValue.replace(/\D+/g, '');
+  if (!currentDigits.length) return null;
+
+  // Getting the data
+  const nextCountryOption = findCountryOptionByIso2(_countries, _nextCountry);
+  const currentCountryOption = findCountryOptionByIso2(_countries, state.value?.country ?? null);
+  const nextDialCodeDigits = normalizeDialCode(nextCountryOption?.dialCode ?? null);
+  const currentDialCodeDigits = normalizeDialCode(currentCountryOption?.dialCode ?? null);
+
+  if (!nextDialCodeDigits.length) return null;
+
+  // Defining the functions
+  const getSubscriberDigits = (): string => {
+    if (currentDialCodeDigits && currentDigits.startsWith(currentDialCodeDigits) && currentDigits.length > currentDialCodeDigits.length) {
+      return currentDigits.slice(currentDialCodeDigits.length);
+    }
+
+    return currentDigits;
+  };
+
+  // Main flow
+  const subscriberDigits = getSubscriberDigits();
+  const rebuiltDigits = `${nextDialCodeDigits}${subscriberDigits}`;
+  return rebuiltDigits ? `+${rebuiltDigits}` : null;
+}
+
+function captureBasePhoneUpdateHandler(_handler: BasePhoneInputUpdateHandler, _inputValue: string): string {
+  basePhoneUpdateHandler.value = _handler;
+  return _inputValue;
 }
 
 function resolvePolicy() {
@@ -221,10 +274,26 @@ function updatePhoneInput(_updateInputValue: BasePhoneInputUpdateHandler, _event
   pushPhoneUpdateToBase(_updateInputValue, payload);
 }
 
-function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: string|null): void {
+function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: string|null, _countries: CountryOption[]): void {
   if (props.disabled) return;
 
   const nextCountry = _countryCode ?? null;
+  const rebuiltPhoneValue = rebuildPhoneValueForCountrySwitch(_countries, nextCountry);
+  const updatePhoneValue = basePhoneUpdateHandler.value;
+
+  if (rebuiltPhoneValue !== null) {
+    const snapshot = getPhoneInputSnapshot(rebuiltPhoneValue, state.value?.config);
+    const payload = createBasePhoneInputUpdatePayload({
+      normalizedInput: snapshot?.normalizedInput,
+      config: state.value?.config,
+    });
+
+    if (updatePhoneValue) {
+      pushPhoneUpdateToBase(updatePhoneValue, payload);
+    } else {
+      val.value = rebuiltPhoneValue;
+    }
+  }
 
   dispatch({ type: 'COUNTRY_SELECTED', value: nextCountry });
   pushCountryUpdateToBase(_updateInputValue, nextCountry);
@@ -290,7 +359,7 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
                         :value="country.name"
                         :class="hasNoFlags ? 'gap-1' : 'gap-2'"
                         :disabled="!!props.disabled"
-                        @select="() => selectCountry(updateInputValue, country?.iso2 || null)"
+                        @select="() => selectCountry(updateInputValue, country?.iso2 || null, countries)"
                     >
                       <Flag
                           v-if="!hasNoFlags"
@@ -317,14 +386,14 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
     <template #input="{ inputValue, updateInputValue, placeholder }">
       <slot
           name="input"
-          :val="inputValue"
+          :val="captureBasePhoneUpdateHandler(updateInputValue, inputValue)"
           :hint="props.hint ?? placeholder"
           :set="_val => updatePhoneInput(updateInputValue, _val)"
       >
         <Input
             class="rounded-e-lg rounded-s-none"
             type="text"
-            :model-value="inputValue"
+            :model-value="captureBasePhoneUpdateHandler(updateInputValue, inputValue)"
             :placeholder="props.hint ?? placeholder"
             :disabled="!!props.disabled"
             inputmode="numeric"
