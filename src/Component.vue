@@ -4,7 +4,7 @@ import { ref, computed, HTMLAttributes, useAttrs, watch } from 'vue';
 import { useFocus } from '@vueuse/core';
 import { ChevronsUpDown } from 'lucide-vue-next';
 import { cn } from '@/shadcn/lib/utils';
-import { createPhoneInputMachineState, reducePhoneInputMachineState, PhoneInputMachineEvent } from './state';
+import { createPhoneInputMachineState, reducePhoneInputMachineState, PhoneInputMachineEvent, getPhoneInputSnapshot } from './state';
 import { createBasePhoneInputUpdatePayload, pushCountryUpdateToBase, pushPhoneUpdateToBase, resolveMachineConfigFromPolicy, BasePhoneInputUpdateHandler } from './adapter';
 import { resolvePhoneInputPolicy, PartialPhoneInputPolicy, PhoneDisplayFormat } from './policies';
 import { Button } from '@/shadcn/components/ui/button';
@@ -89,6 +89,23 @@ function getRawInputValue(_val: Event | string): string {
   return target?.value ?? '';
 }
 
+function getInputTarget(_val: Event | string): HTMLInputElement | null {
+  if (typeof _val === 'string') return null;
+  return _val?.target as HTMLInputElement | null;
+}
+
+function syncInputTargetValue(_eventOrValue: Event | string, _nextValue: string): void {
+  const target = getInputTarget(_eventOrValue);
+  if (!target) return;
+  if (target.value === _nextValue) return;
+
+  target.value = _nextValue;
+}
+
+function resolveDisplayValue(_normalizedInput: string): string {
+  return _normalizedInput;
+}
+
 function resolvePolicy() {
   return resolvePhoneInputPolicy({
     attrs,
@@ -153,7 +170,7 @@ watch(
 
 const val = computed<string|null>({
   get(): string|null {
-    return state.value.modelValue;
+    return state.value?.modelValue;
   },
   set(_val: string|null): void {
     dispatch({ type: 'BASE_MODEL_UPDATED', value: _val ?? null });
@@ -165,7 +182,7 @@ const val = computed<string|null>({
 
 const country = computed<string|null>({
   get(): string|null {
-    return state.value.country;
+    return state.value?.country;
   },
   set(_val: string|null): void {
     dispatch({ type: 'COUNTRY_SELECTED', value: _val ?? null });
@@ -177,7 +194,7 @@ const country = computed<string|null>({
 
 const isPopoverShown = computed<boolean>({
   get(): boolean {
-    return state.value.ui.isPopoverShown;
+    return state.value?.ui?.isPopoverShown;
   },
   set(_val: boolean): void {
     dispatch({ type: 'POPOVER_VISIBILITY_CHANGED', value: _val });
@@ -185,17 +202,20 @@ const isPopoverShown = computed<boolean>({
 });
 
 const hasNoFlags = computed<boolean>(() => {
-  return !resolvedPolicy.value.ui.showFlagsInPopover;
+  return !resolvedPolicy.value?.ui?.showFlagsInPopover;
 });
 
 function updatePhoneInput(_updateInputValue: BasePhoneInputUpdateHandler, _eventOrValue: Event | string): void {
   const rawInput = getRawInputValue(_eventOrValue);
+  const snapshot = getPhoneInputSnapshot(rawInput, state.value?.config);
+  const displayValue = resolveDisplayValue(snapshot?.normalizedInput);
 
-  dispatch({ type: 'USER_TYPED', rawInput });
+  dispatch({ type: 'USER_TYPED', rawInput: displayValue });
+  syncInputTargetValue(_eventOrValue, displayValue);
 
   const payload = createBasePhoneInputUpdatePayload({
-    normalizedInput: state.value.normalizedInput,
-    config: state.value.config,
+    normalizedInput: snapshot?.normalizedInput,
+    config: state.value?.config,
   });
 
   pushPhoneUpdateToBase(_updateInputValue, payload);

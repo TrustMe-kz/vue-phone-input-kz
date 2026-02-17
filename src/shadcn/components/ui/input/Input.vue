@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { useVModel } from "@vueuse/core"
+import { computed, ref, watch, type HTMLAttributes } from "vue"
 import { cn } from '@/shadcn/lib/utils'
 
 const props = defineProps<{
@@ -13,9 +12,24 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void
 }>()
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue,
+const localValue = ref<string | number>(props.defaultValue ?? '')
+
+watch(() => props.defaultValue, (_nextValue) => {
+  if (props.modelValue !== undefined) return
+  localValue.value = _nextValue ?? ''
+})
+
+const modelValue = computed<string | number>({
+  get() {
+    if (props.modelValue !== undefined) return props.modelValue
+    return localValue.value
+  },
+  set(_nextValue) {
+    emits('update:modelValue', _nextValue)
+
+    if (props.modelValue !== undefined) return
+    localValue.value = _nextValue
+  },
 })
 </script>
 

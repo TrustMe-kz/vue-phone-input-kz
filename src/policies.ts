@@ -181,7 +181,7 @@ export function resolvePhoneInputPolicy(_input: ResolvePhoneInputPolicyInput): P
     ui: {
       showFlagsInPopover: resolvedShowFlagsInPopover
         ?? externalPolicy.ui?.showFlagsInPopover
-        ?? DEFAULT_PHONE_INPUT_POLICY.ui.showFlagsInPopover,
+        ?? DEFAULT_PHONE_INPUT_POLICY.ui?.showFlagsInPopover,
     },
   };
 }
