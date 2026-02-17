@@ -5,3 +5,4 @@ import './index.css';
 export default PhoneInputKz;
 
 export { PhoneInputKz, Flag };
+export type { PhoneInputPolicy, PartialPhoneInputPolicy } from './policies';

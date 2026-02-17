@@ -74,11 +74,27 @@ import 'vue-phone-input-kz/index.css';
 | `exclude` | `string[] \| null` | `['AC']` | Countries excluded from selector |
 | `format` | `'international' \| 'national' \| null` | `'international'` | Final display format for valid numbers |
 | `fetch` | `boolean \| null` | `false` | Enables country fetch mode in base engine |
+| `locale` | `string \| null` | `null` | Country locale forwarded to base engine (`country-locale`) |
 | `hint` | `string \| null` | `null` | Custom input placeholder (fallbacks to base placeholder) |
 | `disabled` | `boolean \| null` | `false` | Disables input and country selector with disabled styles |
-| `showFlagsInPopover` | `boolean \| null` | `true` | Enables/disables rendering country flags inside the popover list |
+| `popoverFlags` | `boolean \| null` | `true` | Enables/disables rendering country flags inside the popover list |
+| `noFlags` | `boolean \| null` | `false` | Legacy inverse flag switch (`true` disables flags in popover) |
 | `translations` | `{ searchCountry?: string; noCountryFound?: string } \| null` | `null` | UI text overrides for country search/empty state (fallback to English) |
+| `maxDigits` | `number \| null` | `15` | Maximum count of digits allowed in the phone number (E.164-safe limit by default) |
+| `digitsOnly` | `boolean \| null` | `true` | Strips all non-digit input characters before passing value to base engine |
+| `plus` | `boolean \| null` | `true` | Adds `+` prefix automatically when there is at least one digit |
+| `forcePlus` | `boolean \| null` | `true` | Backward-compatible alias for `plus` |
+| `policy` | `Partial<PhoneInputPolicy> \| null` | `null` | Unified configuration object for input/format/country/ui policies |
 | `class` | `HTMLAttributes['class'] \| null` | `null` | Extra classes for component root |
+
+`maxDigits` is enforced by digits count (not by raw input string length), so formatted values with spaces/brackets can still be typed until digit limit is reached.
+
+Policy merge order (highest priority first):
+- legacy wrapper props (`maxDigits`, `plus`, `forcePlus`, `fetch`, `popoverFlags`, `noFlags`, etc.)
+- `policy` object
+- default policy values
+
+`auto-format`, `no-formatting-as-you-type`, and country auto-detect attrs from `vue-phone-input-base` are still supported and merged into the resolved policy.
 
 ### Events
 
@@ -113,13 +129,34 @@ Example:
 Localization example:
 
 ```vue
-<PhoneInputKz
+  <PhoneInputKz
   v-model="phone"
   hint="Номер телефона"
-  :show-flags-in-popover="false"
+  :popover-flags="false"
+  :max-digits="15"
+  :digits-only="true"
+  :plus="true"
   :translations="{
     searchCountry: 'Поиск страны...',
     noCountryFound: 'Страна не найдена.'
+  }"
+/>
+```
+
+Policy object example:
+
+```vue
+<PhoneInputKz
+  v-model="phone"
+  :policy="{
+    input: { maxDigits: 15, digitsOnly: true, plus: true },
+    formatting: { displayFormat: 'international', autoFormat: true },
+    country: {
+      autoDetectCountryFromPrefix: true,
+      autoDetectCountryLocalTrunkPrefix: '8',
+      autoDetectCountryLocalCallingCodes: ['7']
+    },
+    ui: { showFlagsInPopover: true }
   }"
 />
 ```
