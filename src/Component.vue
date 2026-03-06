@@ -82,6 +82,7 @@ const props = defineProps<{
 const attrs = useAttrs();
 
 const inputEl = ref(null);
+const countryEl = ref(null);
 const basePhoneUpdateHandler = ref<BasePhoneInputUpdateHandler | null>(null);
 
 const { focused } = useFocus(inputEl);
@@ -158,6 +159,39 @@ function rebuildPhoneValueForCountrySwitch(_countries: CountryOption[], _nextCou
 function captureBasePhoneUpdateHandler(_handler: BasePhoneInputUpdateHandler, _inputValue: string): string {
   basePhoneUpdateHandler.value = _handler;
   return _inputValue;
+}
+
+function getElement(val: any): HTMLElement | null {
+
+  // Doing some checks
+
+  if (!val)
+    return null;
+
+  if (val instanceof HTMLElement)
+    return val;
+
+
+  return val?.$el instanceof HTMLElement ? val?.$el : null;
+}
+
+function focusOnInput(): void {
+  const el = getElement(inputEl.value);
+  el?.focus();
+}
+
+function focusOnCountry(): void {
+  const el = getElement(countryEl.value);
+  el?.focus();
+}
+
+function focus(): void {
+  focusOnInput();
+}
+
+function blur(): void {
+  const el = getElement(inputEl.value);
+  el?.blur();
 }
 
 function resolvePolicy() {
@@ -303,6 +337,13 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
   focused.value = true;
 }
 
+defineExpose({
+  focusOnCountry,
+  focusOnInput,
+  focus,
+  blur,
+});
+
 </script>
 
 <template>
@@ -330,6 +371,7 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
                 variant="outline"
                 class="phone_input_kz_country flex gap-1 rounded-e-none rounded-s-lg px-3"
                 :disabled="!!props.disabled"
+                ref="countryEl"
             >
               <Flag :country="inputValue" />
               <ChevronsUpDown class="-mr-2 h-4 w-4 opacity-50" />

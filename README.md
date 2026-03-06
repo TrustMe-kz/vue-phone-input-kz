@@ -131,6 +131,30 @@ Example:
 />
 ```
 
+### Public instance methods
+
+When using a template `ref` on `PhoneInputKz`, you can call:
+
+- `focus()` - focuses the phone input
+- `blur()` - blurs the phone input
+- `focusOnInput()` - explicit alias for focusing the phone input
+- `focusOnCountry()` - focuses the country selector button
+
+Example:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import PhoneInputKz from 'vue-phone-input-kz';
+
+const phoneRef = ref<InstanceType<typeof PhoneInputKz> | null>(null);
+</script>
+
+<template>
+  <PhoneInputKz ref="phoneRef" v-model="phone" />
+</template>
+```
+
 Localization example:
 
 ```vue
