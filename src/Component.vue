@@ -84,6 +84,7 @@ const attrs = useAttrs();
 const inputEl = ref(null);
 const countryEl = ref(null);
 const basePhoneUpdateHandler = ref<BasePhoneInputUpdateHandler | null>(null);
+const lastEmittedModelValue = ref<string | null>(null);
 
 const { focused } = useFocus(inputEl);
 
@@ -244,7 +245,11 @@ function dispatch(_event: PhoneInputMachineEvent): void {
 watch(
   () => props.modelValue,
   (_val) => {
-    dispatch({ type: 'EXTERNAL_MODEL_CHANGED', value: _val ?? null });
+    const nextValue = _val ?? null;
+    if (nextValue === lastEmittedModelValue.value) return;
+
+    dispatch({ type: 'EXTERNAL_MODEL_CHANGED', value: nextValue });
+    lastEmittedModelValue.value = nextValue;
   },
 );
 
@@ -268,14 +273,19 @@ const val = computed<string|null>({
     return state.value?.modelValue;
   },
   set(_val: string|null): void {
-    const nextValue = normalizeModelValueForEmit(_val ?? null);
-    const prevValue = state.value?.modelValue ?? null;
-    if (nextValue === prevValue) return;
+    const nextInternalValue = _val ?? null;
+    const prevInternalValue = state.value?.modelValue ?? null;
+    const nextEmittedValue = normalizeModelValueForEmit(nextInternalValue);
 
-    dispatch({ type: 'BASE_MODEL_UPDATED', value: nextValue });
+    if (nextInternalValue !== prevInternalValue) {
+      dispatch({ type: 'BASE_MODEL_UPDATED', value: nextInternalValue });
+    }
 
-    emit('change', nextValue);
-    emit('update:modelValue', nextValue);
+    if (nextEmittedValue === lastEmittedModelValue.value) return;
+    lastEmittedModelValue.value = nextEmittedValue;
+
+    emit('change', nextEmittedValue);
+    emit('update:modelValue', nextEmittedValue);
   },
 });
 

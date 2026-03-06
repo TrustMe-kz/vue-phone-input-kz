@@ -32,6 +32,7 @@ const ignoredCountriesInput = ref('AC');
 
 const meta = ref<Record<string, unknown> | null>(null);
 const modelEmitLog = ref<string[]>([]);
+const countryEmitLog = ref<string[]>([]);
 const phoneRef = ref<InstanceType<typeof PhoneInputKz> | null>(null);
 
 
@@ -148,6 +149,19 @@ watch(
 
     modelEmitLog.value = [ logEntry, ...modelEmitLog.value ].slice(0, 15);
     console.log('[test-app:modelValue]', { newVal, oldVal });
+  },
+  { immediate: true },
+);
+
+watch(
+  countryCode,
+  (newVal, oldVal) => {
+    const nextValue = newVal ?? 'null';
+    const prevValue = oldVal ?? 'null';
+    const logEntry = `${nextValue} (prev: ${prevValue})`;
+
+    countryEmitLog.value = [ logEntry, ...countryEmitLog.value ].slice(0, 15);
+    console.log('[test-app:countryCode]', { newVal, oldVal });
   },
   { immediate: true },
 );
@@ -400,6 +414,15 @@ watch(
           </h2>
           <pre class="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-slate-900">{{
             modelEmitLog.length ? modelEmitLog.join('\n') : '—'
+          }}</pre>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+          <h2 class="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+            country emit log
+          </h2>
+          <pre class="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-slate-900">{{
+            countryEmitLog.length ? countryEmitLog.join('\n') : '—'
           }}</pre>
         </article>
 
