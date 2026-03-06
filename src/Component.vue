@@ -85,6 +85,7 @@ const inputEl = ref(null);
 const countryEl = ref(null);
 const basePhoneUpdateHandler = ref<BasePhoneInputUpdateHandler | null>(null);
 const lastEmittedModelValue = ref<string | null>(null);
+const lastEmittedCountry = ref<string | null>(null);
 
 const { focused } = useFocus(inputEl);
 
@@ -124,6 +125,20 @@ function normalizeModelValueForEmit(_val: string | null): string | null {
 
 function normalizeDialCode(_dialCode: string | null | undefined): string {
   return String(_dialCode ?? '').replace(/\D+/g, '');
+}
+
+function normalizeCountryCode(_countryCode: string | null | undefined): string | null {
+  if (!_countryCode) return null;
+
+  const normalized = String(_countryCode).trim().toLowerCase();
+  return normalized || null;
+}
+
+function normalizeCountryCodeForBase(_countryCode: string | null | undefined): string | null {
+  const normalized = normalizeCountryCode(_countryCode);
+  if (!normalized) return null;
+
+  return normalized.toUpperCase();
 }
 
 function findCountryOptionByIso2(_countries: CountryOption[], _iso2: string | null): CountryOption | null {
@@ -233,7 +248,7 @@ const machineConfig = computed(() => {
 const state = ref(
   createPhoneInputMachineState({
     modelValue: props.modelValue ?? null,
-    country: props.country ?? null,
+    country: normalizeCountryCode(props.country ?? null),
     config: machineConfig.value,
   }),
 );
@@ -246,17 +261,36 @@ watch(
   () => props.modelValue,
   (_val) => {
     const nextValue = _val ?? null;
-    if (nextValue === lastEmittedModelValue.value) return;
+    const nextNormalizedValue = normalizeModelValueForEmit(nextValue);
+    const currentNormalizedValue = normalizeModelValueForEmit(state.value?.modelValue ?? null);
+
+    if (nextNormalizedValue === currentNormalizedValue) {
+      lastEmittedModelValue.value = nextNormalizedValue;
+      return;
+    }
+
+    if (nextNormalizedValue === lastEmittedModelValue.value) return;
 
     dispatch({ type: 'EXTERNAL_MODEL_CHANGED', value: nextValue });
-    lastEmittedModelValue.value = nextValue;
+    lastEmittedModelValue.value = nextNormalizedValue;
   },
 );
 
 watch(
   () => props.country,
   (_val) => {
-    dispatch({ type: 'EXTERNAL_COUNTRY_CHANGED', value: _val ?? null });
+    const nextCountry = normalizeCountryCode(_val ?? null);
+    const currentCountry = normalizeCountryCode(state.value?.country ?? null);
+
+    if (nextCountry === currentCountry) {
+      lastEmittedCountry.value = nextCountry;
+      return;
+    }
+
+    if (nextCountry === lastEmittedCountry.value) return;
+
+    dispatch({ type: 'EXTERNAL_COUNTRY_CHANGED', value: nextCountry });
+    lastEmittedCountry.value = nextCountry;
   },
 );
 
@@ -294,11 +328,23 @@ const country = computed<string|null>({
     return state.value?.country;
   },
   set(_val: string|null): void {
-    dispatch({ type: 'COUNTRY_SELECTED', value: _val ?? null });
+    const nextCountry = normalizeCountryCode(_val ?? null);
+    const prevCountry = normalizeCountryCode(state.value?.country ?? null);
 
-    emit('changeCountry', _val ?? null);
-    emit('update:country', _val ?? null);
+    if (nextCountry === prevCountry) return;
+
+    dispatch({ type: 'COUNTRY_SELECTED', value: nextCountry });
+
+    if (nextCountry === lastEmittedCountry.value) return;
+    lastEmittedCountry.value = nextCountry;
+
+    emit('changeCountry', nextCountry);
+    emit('update:country', nextCountry);
   },
+});
+
+const baseCountryCode = computed<string|null>(() => {
+  return normalizeCountryCodeForBase(state.value?.country ?? null);
 });
 
 const isPopoverShown = computed<boolean>({
@@ -333,7 +379,7 @@ function updatePhoneInput(_updateInputValue: BasePhoneInputUpdateHandler, _event
 function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: string|null, _countries: CountryOption[]): void {
   if (props.disabled) return;
 
-  const nextCountry = _countryCode ?? null;
+  const nextCountry = normalizeCountryCode(_countryCode ?? null);
   const rebuiltPhoneValue = rebuildPhoneValueForCountrySwitch(_countries, nextCountry);
   const updatePhoneValue = basePhoneUpdateHandler.value;
 
@@ -351,8 +397,8 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
     }
   }
 
-  dispatch({ type: 'COUNTRY_SELECTED', value: nextCountry });
-  pushCountryUpdateToBase(_updateInputValue, nextCountry);
+  country.value = nextCountry;
+  pushCountryUpdateToBase(_updateInputValue, normalizeCountryCodeForBase(nextCountry));
 
   isPopoverShown.value = false;
   focused.value = true;
@@ -370,7 +416,7 @@ defineExpose({
 <template>
   <PhoneInput
       :class="cn([ 'phone_input_kz flex', props.class ])"
-      :country-code="country"
+      :country-code="baseCountryCode"
       :ignored-countries="exclude ?? DEFAULT_EXCLUDE"
       :phone-number-display-format="resolvedPolicy.formatting.displayFormat"
       :country-locale="props.locale"
