@@ -18,7 +18,7 @@
     "lint": "eslint",
     "shadcn": "bin/shadcn",
     "start:test-app": "cd test/app && npm run test-app",
-    "build:types": "vue-tsc --noEmit false",
+    "build:types": "vue-tsc -p src/tsconfig.json --noEmit false",
     "build": "vite build && npm run build:types",
     "test:app": "npm run build && cd test/app && npm i && npm run test-app",
     "prepublish": "npm run build"

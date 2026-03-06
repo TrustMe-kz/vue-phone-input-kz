@@ -1,11 +1,8 @@
 {
-  "exclude": [ "dist/**", "test/app/**" ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "..",
     "paths": {
-      "@phone-input-kz/*": [ "dist/*" ],
-      "@phone-input-kz": [ "dist/index.js" ],
-      "@test-lib": [ "test-lib.ts" ],
+      "@/*": [ "src/*" ],
     },
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -19,8 +16,8 @@
     "noImplicitAny": false,
 
     /* Bundler mode */
-    "outDir": "dist",
-    "moduleResolution": "nodenext",
+    "outDir": "../dist",
+    "moduleResolution": "node",
     "isolatedModules": false,
     "moduleDetection": "force",
     "declaration": true,
@@ -34,5 +31,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": [ "vite.config.ts" ]
+  "include": [ "**/*.ts", "**/*.d.ts" ]
 }
