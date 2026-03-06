@@ -66,13 +66,14 @@ const props = defineProps<{
   translations?: Translations | null,
   policy?: PartialPhoneInputPolicy | null,
 
-  disabled?: boolean | null,
-  fetch?: boolean | null,
-  plus?: boolean | null,
-  forcePlus?: boolean | null,
-  digitsOnly?: boolean | null,
-  popoverFlags?: boolean | null,
-  noFlags?: boolean | null,
+  disabled?: boolean|null,
+  fetch?: boolean|null,
+  plus?: boolean|null,
+  forcePlus?: boolean|null,
+  digitsOnly?: boolean|null,
+  popoverFlags?: boolean|null,
+  noFlags?: boolean|null,
+  noAutocomplete?: boolean|null,
 }>();
 
 
@@ -313,6 +314,7 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
       :country-locale="props.locale"
       :fetch-country="resolvedPolicy.country.fetchCountry"
       :no-use-browser-locale="resolvedPolicy.country.fetchCountry"
+      :no-autocomplete="props.noAutocomplete"
       :auto-detect-country-from-prefix="resolvedPolicy.country.autoDetectCountryFromPrefix"
       :auto-detect-country-local-trunk-prefix="resolvedPolicy.country.autoDetectCountryLocalTrunkPrefix"
       :auto-detect-country-local-calling-codes="resolvedPolicy.country.autoDetectCountryLocalCallingCodes"
@@ -326,7 +328,7 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
           <PopoverTrigger as-child>
             <Button
                 variant="outline"
-                class="flex gap-1 rounded-e-none rounded-s-lg px-3"
+                class="phone_input_kz_country flex gap-1 rounded-e-none rounded-s-lg px-3"
                 :disabled="!!props.disabled"
             >
               <Flag :country="inputValue" />
@@ -391,7 +393,7 @@ function selectCountry(_updateInputValue: (_val: string) => void, _countryCode: 
           :set="_val => updatePhoneInput(updateInputValue, _val)"
       >
         <Input
-            class="rounded-e-lg rounded-s-none"
+            class="phone_input_kz_input rounded-e-lg rounded-s-none"
             type="text"
             :model-value="captureBasePhoneUpdateHandler(updateInputValue, inputValue)"
             :placeholder="props.hint ?? placeholder"

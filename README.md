@@ -1,5 +1,8 @@
 ## vue-phone-input-kz
 
+[![Static Badge](https://img.shields.io/badge/GitHub-Star%20%281%29-yellow?logo=github)](https://github.com/TrustMe-kz/vue-phone-input-kz)
+[![Static Badge](https://img.shields.io/badge/NPM-Download%20%28557%29-blue)](https://www.npmjs.com/package/vue-phone-input-kz)
+
 **vue-phone-input-kz** is a Vue 3 phone input component focused on Kazakhstan-first behavior for ambiguous `+7` numbers. It wraps [vue-phone-input-base](https://www.npmjs.com/package/vue-phone-input-base) and provides a custom UI (flag, country popover, country search) on top of the base parsing/formatting engine.
 
 The library is built as a Vite library and published with ESM/UMD bundles and TypeScript declarations.
@@ -79,6 +82,7 @@ import 'vue-phone-input-kz/index.css';
 | `disabled` | `boolean \| null` | `false` | Disables input and country selector with disabled styles |
 | `popoverFlags` | `boolean \| null` | `true` | Enables/disables rendering country flags inside the popover list |
 | `noFlags` | `boolean \| null` | `false` | Legacy inverse flag switch (`true` disables flags in popover) |
+| `noAutocomplete` | `boolean \| null` | `false` | Enables anti-autofill mode for the phone input (helps disable browser autocomplete/autofill) |
 | `translations` | `{ searchCountry?: string; noCountryFound?: string } \| null` | `null` | UI text overrides for country search/empty state (fallback to English) |
 | `maxDigits` | `number \| null` | `15` | Maximum count of digits allowed in the phone number (E.164-safe limit by default) |
 | `digitsOnly` | `boolean \| null` | `true` | Strips all non-digit input characters before passing value to base engine |
@@ -111,6 +115,7 @@ Unknown attributes/listeners are passed to `vue-phone-input-base` through the ro
 
 - `auto-format`
 - `no-formatting-as-you-type`
+- `no-autocomplete`
 - `preferred-countries`
 - `only-countries`
 - `ignored-countries`

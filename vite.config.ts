@@ -5,7 +5,14 @@ import tailwindcss from '@tailwindcss/vite';
 import eslint from 'vite-plugin-eslint';
 
 export default defineConfig({
-  plugins: [ vue(), tailwindcss(), eslint() ],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    eslint({
+      include: [ 'src/**/*.ts', 'src/**/*.vue' ],
+      exclude: [ 'node_modules/**', 'dist/**' ],
+    }),
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
