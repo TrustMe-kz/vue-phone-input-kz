@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import PhoneInputKz from '@phone-input-kz/index.ts';
 
 
@@ -31,6 +31,7 @@ const onlyCountriesInput = ref('');
 const ignoredCountriesInput = ref('AC');
 
 const meta = ref<Record<string, unknown> | null>(null);
+const modelEmitLog = ref<string[]>([]);
 const phoneRef = ref<InstanceType<typeof PhoneInputKz> | null>(null);
 
 
@@ -137,6 +138,19 @@ const policy = computed(() => {
     },
   };
 });
+
+watch(
+  phone,
+  (newVal, oldVal) => {
+    const nextValue = newVal ?? 'null';
+    const prevValue = oldVal ?? 'null';
+    const logEntry = `${nextValue} (prev: ${prevValue})`;
+
+    modelEmitLog.value = [ logEntry, ...modelEmitLog.value ].slice(0, 15);
+    console.log('[test-app:modelValue]', { newVal, oldVal });
+  },
+  { immediate: true },
+);
 
 </script>
 
@@ -378,6 +392,15 @@ const policy = computed(() => {
             Last metadata payload
           </h2>
           <pre class="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-slate-900">{{ meta ? JSON.stringify(meta, null, 2) : '—' }}</pre>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+          <h2 class="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+            v-model emit log
+          </h2>
+          <pre class="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-slate-900">{{
+            modelEmitLog.length ? modelEmitLog.join('\n') : '—'
+          }}</pre>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">

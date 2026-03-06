@@ -114,6 +114,13 @@ function resolveDisplayValue(_normalizedInput: string): string {
   return _normalizedInput;
 }
 
+function normalizeModelValueForEmit(_val: string | null): string | null {
+  if (_val === null) return null;
+
+  const snapshot = getPhoneInputSnapshot(_val, state.value?.config);
+  return snapshot?.normalizedInput ?? '';
+}
+
 function normalizeDialCode(_dialCode: string | null | undefined): string {
   return String(_dialCode ?? '').replace(/\D+/g, '');
 }
@@ -261,10 +268,14 @@ const val = computed<string|null>({
     return state.value?.modelValue;
   },
   set(_val: string|null): void {
-    dispatch({ type: 'BASE_MODEL_UPDATED', value: _val ?? null });
+    const nextValue = normalizeModelValueForEmit(_val ?? null);
+    const prevValue = state.value?.modelValue ?? null;
+    if (nextValue === prevValue) return;
 
-    emit('change', _val ?? null);
-    emit('update:modelValue', _val ?? null);
+    dispatch({ type: 'BASE_MODEL_UPDATED', value: nextValue });
+
+    emit('change', nextValue);
+    emit('update:modelValue', nextValue);
   },
 });
 
